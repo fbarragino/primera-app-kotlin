@@ -1,2 +1,2 @@
-# primera-app-kotlin
+# primera app kotlin
 Primera aplicación con Kotlin
