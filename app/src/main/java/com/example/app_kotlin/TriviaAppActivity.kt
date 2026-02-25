@@ -1,10 +1,10 @@
 package com.example.app_kotlin
 
 import android.os.Bundle
-import android.widget.RadioButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_kotlin.trivia.QuizUiState
+import com.example.app_kotlin.trivia.QuizViewModel
 import com.example.app_kotlin.ui.theme.AppkotlinTheme
 
 class TriviaAppActivity : ComponentActivity() {
@@ -32,7 +36,9 @@ class TriviaAppActivity : ComponentActivity() {
         setContent {
             AppkotlinTheme {
 
-                val state = false;
+                val viewModel : QuizViewModel = viewModel()
+
+                val state = viewModel.uiState.collectAsStateWithLifecycle().value
 
                 Scaffold(
                     topBar = {
@@ -63,12 +69,15 @@ class TriviaAppActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        if(state) {
+                        if(state.isFinished) {
                             // Vista FinishedScreen
                             FinishedScreen()
                         } else {
                             // Vista/Pantalla QuestionScreen
-                            QuestionScreen()
+                            QuestionScreen(
+                                state = state,
+                                onSelectedOption = viewModel::onSelectedOption
+                            )
                         }
                     }
                 }
@@ -78,7 +87,14 @@ class TriviaAppActivity : ComponentActivity() {
 }
 
 @Composable
-fun QuestionScreen() {
+fun QuestionScreen(
+    state : QuizUiState,
+    onSelectedOption: (Int) -> Unit
+) {
+
+    // Tomare la pregunta actual desde el estado (derivado)
+    val q = state.currentQuestion ?: return
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,27 +103,38 @@ fun QuestionScreen() {
     ) {
         // Pregunta 1 de N
         Text(
-            text = "Pregunta 1 de 5",
+            text = "Pregunta ${state.currentIndex + 1} de ${state.questions.size}",
             style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = "Pregunta 1 ABC",
+            text = q.title,
             style = MaterialTheme.typography.headlineSmall
         )
 
-        repeat(4) { index ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        q.options.forEachIndexed{ index, option ->
+            val isSelected = state.selectedIndex == index
+
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSelectedOption(index) } ,
+                elevation = CardDefaults.elevatedCardElevation(
+                    defaultElevation = if (isSelected) 14.dp else 1.dp
+                )
             ) {
-                RadioButton(
-                    selected = false,
-                    onClick = {}
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Respuesta ${index + 1} de la pregunta 1",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = isSelected,
+                        onClick = { onSelectedOption(index) }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = option,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
 
