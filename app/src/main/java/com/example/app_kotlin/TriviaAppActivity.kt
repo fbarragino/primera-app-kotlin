@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -21,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_kotlin.trivia.QuizUiState
@@ -70,13 +74,16 @@ class TriviaAppActivity : ComponentActivity() {
                             .fillMaxSize()
                     ) {
                         if(state.isFinished) {
-                            // Vista FinishedScreen
-                            FinishedScreen()
+                            FinishedScreen(
+                                score = state.score,
+                                total = state.questions.size * 100
+                            )
                         } else {
-                            // Vista/Pantalla QuestionScreen
                             QuestionScreen(
                                 state = state,
-                                onSelectedOption = viewModel::onSelectedOption
+                                onSelectedOption = viewModel::onSelectedOption,
+                                onConfirm = viewModel::onConfirmAnswer,
+                                onNext = viewModel::onNextQuestion
                             )
                         }
                     }
@@ -89,10 +96,11 @@ class TriviaAppActivity : ComponentActivity() {
 @Composable
 fun QuestionScreen(
     state : QuizUiState,
-    onSelectedOption: (Int) -> Unit
+    onSelectedOption: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    onNext: () -> Unit
 ) {
 
-    // Tomare la pregunta actual desde el estado (derivado)
     val q = state.currentQuestion ?: return
 
     Column(
@@ -101,7 +109,6 @@ fun QuestionScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Pregunta 1 de N
         Text(
             text = "Pregunta ${state.currentIndex + 1} de ${state.questions.size}",
             style = MaterialTheme.typography.titleMedium
@@ -117,17 +124,22 @@ fun QuestionScreen(
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onSelectedOption(index) } ,
+                    .clickable(enabled = !state.showNextButton) { onSelectedOption(index) } ,
                 elevation = CardDefaults.elevatedCardElevation(
                     defaultElevation = if (isSelected) 14.dp else 1.dp
+                ),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
                 )
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     RadioButton(
                         selected = isSelected,
-                        onClick = { onSelectedOption(index) }
+                        onClick = { if (!state.showNextButton) onSelectedOption(index) },
+                        enabled = !state.showNextButton
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -138,17 +150,82 @@ fun QuestionScreen(
             }
         }
 
-        Button(
-            onClick = {},
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Confirmar")
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Feedback Section
+        AnimatedVisibility(visible = state.feedback != null) {
+            Text(
+                text = state.feedback ?: "",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = if (state.feedback?.contains("✅") == true) Color(0xFF4CAF50) else Color(0xFFF44336)
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        if (!state.showNextButton) {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = state.selectedIndex != null
+            ) {
+                val buttonText = if (state.isLastQuestion) "Ver resultados" else "Confirmar"
+                Text(buttonText)
+            }
+        } else {
+            Button(
+                onClick = onNext,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
+            ) {
+                Text(if (state.isLastQuestion) "Finalizar" else "Siguiente pregunta")
+            }
         }
 
     }
 }
 
 @Composable
-fun FinishedScreen() {
+fun FinishedScreen(
+    score: Int,
+    total: Int
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "¡Quiz finalizado!",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Puntaje Final",
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = "$score / $total",
+            style = MaterialTheme.typography.displayMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(64.dp))
+
+        Button(
+            onClick = { /* Implementar reinicio si se desea */ },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Volver al Inicio")
+        }
+    }
 }
