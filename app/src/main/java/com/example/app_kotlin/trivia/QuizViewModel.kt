@@ -29,9 +29,11 @@ class QuizViewModel : ViewModel() {
         val isCorrect = selected == currentQuestion.correctIndex
         val feedbackText = if (isCorrect) "✅ Correcto" else "❌ Incorrecto"
         val newScore = if (isCorrect) current.score + 100 else current.score
+        val newLives = if (isCorrect) current.lives else current.lives - 1
 
         _uiState.value = current.copy(
             score = newScore,
+            lives = newLives,
             feedback = feedbackText,
             showNextButton = true
         )
@@ -39,6 +41,15 @@ class QuizViewModel : ViewModel() {
 
     fun onNextQuestion() {
         val current = _uiState.value
+        
+        if (current.lives <= 0) {
+            _uiState.value = current.copy(
+                isFinished = true,
+                reasonForFinish = FinishReason.NO_LIVES
+            )
+            return
+        }
+
         val nextIndex = current.currentIndex + 1
         val isFinished = nextIndex >= current.questions.size
 
@@ -47,8 +58,13 @@ class QuizViewModel : ViewModel() {
             selectedIndex = null,
             feedback = null,
             showNextButton = false,
-            isFinished = isFinished
+            isFinished = isFinished,
+            reasonForFinish = if (isFinished) FinishReason.COMPLETED else current.reasonForFinish
         )
+    }
+
+    fun restartQuiz() {
+        _uiState.value = QuizUiState(questions = seedQuestions())
     }
 
     private fun seedQuestions(): List<Question> {
@@ -88,6 +104,60 @@ class QuizViewModel : ViewModel() {
                 title = "¿Qué componente de Jetpack se encarga de manejar el ciclo de vida?",
                 options = listOf("ViewModel", "LiveData", "Lifecycle", "WorkManager"),
                 correctIndex = 2
+            ),
+            Question(
+                id = 7,
+                title = "¿Cómo se llama la función que permite añadir funcionalidad a una clase existente sin heredar de ella?",
+                options = listOf("Función anónima", "Función de extensión", "Función Lambda", "Función Inline"),
+                correctIndex = 1
+            ),
+            Question(
+                id = 8,
+                title = "¿Qué palabra clave se utiliza para pausar la ejecución de una corrutina?",
+                options = listOf("pause", "wait", "stop", "suspend"),
+                correctIndex = 3
+            ),
+            Question(
+                id = 9,
+                title = "¿Cuál es la principal ventaja de una 'Data Class' en Kotlin?",
+                options = listOf("No permite nulos", "Solo guarda enteros", "Genera automáticamente equals, hashCode y toString", "Es más rápida de compilar"),
+                correctIndex = 2
+            ),
+            Question(
+                id = 10,
+                title = "¿Qué operador se usa para llamadas seguras (safe call) en objetos que pueden ser nulos?",
+                options = listOf("!!", "?.", "?:", "as?"),
+                correctIndex = 1
+            ),
+            Question(
+                id = 11,
+                title = "En Compose, ¿qué función se usa para preservar el estado durante la recomposición?",
+                options = listOf("remember", "save", "persist", "hold"),
+                correctIndex = 0
+            ),
+            Question(
+                id = 12,
+                title = "¿Cuál de estas funciones de alcance (Scope Functions) usa 'it' como argumento y devuelve el resultado de la lambda?",
+                options = listOf("apply", "with", "let", "also"),
+                correctIndex = 2
+            ),
+            Question(
+                id = 13,
+                title = "¿Cómo se crea una lista de solo lectura en Kotlin?",
+                options = listOf("arrayListOf()", "mutableListOf()", "listOf()", "newList()"),
+                correctIndex = 2
+            ),
+            Question(
+                id = 14,
+                title = "¿Dónde se define el constructor primario de una clase en Kotlin?",
+                options = listOf("Dentro del cuerpo de la clase", "En el método init", "En la cabecera de la clase", "En un archivo aparte"),
+                correctIndex = 2
+            ),
+            Question(
+                id = 15,
+                title = "¿Qué permite la palabra clave 'lateinit'?",
+                options = listOf("Inicializar variables val", "Diferir la inicialización de propiedades no nulas", "Crear variables globales", "Optimizar el recolector de basura"),
+                correctIndex = 1
             )
         )
     }
