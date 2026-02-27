@@ -95,68 +95,68 @@ class QuizViewModel : ViewModel() {
             ),
             Question(
                 id = 5,
-                title = "¿Cuál es el lenguaje oficial recomendado por Google para Android?",
-                options = listOf("Java", "C++", "Kotlin", "Python"),
-                correctIndex = 2
+                title = "¿Qué característica de Kotlin permite usar librerías de Java directamente?",
+                options = listOf("Inferencia", "Interoperabilidad", "Null Safety", "Extensión"),
+                correctIndex = 1
             ),
             Question(
                 id = 6,
-                title = "¿Qué componente de Jetpack se encarga de manejar el ciclo de vida?",
-                options = listOf("ViewModel", "LiveData", "Lifecycle", "WorkManager"),
+                title = "Según el glosario, ¿qué componente sobrevive a la rotación de pantalla?",
+                options = listOf("Activity", "LiveData", "ViewModel", "Repository"),
                 correctIndex = 2
             ),
             Question(
                 id = 7,
-                title = "¿Cómo se llama la función que permite añadir funcionalidad a una clase existente sin heredar de ella?",
-                options = listOf("Función anónima", "Función de extensión", "Función Lambda", "Función Inline"),
-                correctIndex = 1
-            ),
-            Question(
-                id = 8,
-                title = "¿Qué palabra clave se utiliza para pausar la ejecución de una corrutina?",
-                options = listOf("pause", "wait", "stop", "suspend"),
-                correctIndex = 3
-            ),
-            Question(
-                id = 9,
-                title = "¿Cuál es la principal ventaja de una 'Data Class' en Kotlin?",
-                options = listOf("No permite nulos", "Solo guarda enteros", "Genera automáticamente equals, hashCode y toString", "Es más rápida de compilar"),
+                title = "Para añadir funciones a una clase sin heredar de ella se usan funciones de:",
+                options = listOf("Alcance", "Orden superior", "Extensión", "Infix"),
                 correctIndex = 2
             ),
             Question(
+                id = 8,
+                title = "¿Cómo se llama el sistema que evita los NullPointerExceptions en Kotlin?",
+                options = listOf("Safe Check", "Null Safety", "Zero Null", "Type Guard"),
+                correctIndex = 1
+            ),
+            Question(
+                id = 9,
+                title = "Clase que genera automáticamente equals(), hashCode() y toString():",
+                options = listOf("Inner Class", "Sealed Class", "Enum Class", "Data Class"),
+                correctIndex = 3
+            ),
+            Question(
                 id = 10,
-                title = "¿Qué operador se usa para llamadas seguras (safe call) en objetos que pueden ser nulos?",
-                options = listOf("!!", "?.", "?:", "as?"),
+                title = "¿Qué componente observable actualiza la UI automáticamente al cambiar los datos?",
+                options = listOf("Context", "LiveData", "Intent", "Manifest"),
                 correctIndex = 1
             ),
             Question(
                 id = 11,
-                title = "En Compose, ¿qué función se usa para preservar el estado durante la recomposición?",
-                options = listOf("remember", "save", "persist", "hold"),
-                correctIndex = 0
+                title = "Patrón que separa la lógica de presentación en un 'Presentador':",
+                options = listOf("MVC", "MVVM", "MVP", "Repository"),
+                correctIndex = 2
             ),
             Question(
                 id = 12,
-                title = "¿Cuál de estas funciones de alcance (Scope Functions) usa 'it' como argumento y devuelve el resultado de la lambda?",
-                options = listOf("apply", "with", "let", "also"),
+                title = "Función de alcance ideal para ejecutar código sobre un objeto opcional (nulo):",
+                options = listOf("apply", "also", "let", "run"),
                 correctIndex = 2
             ),
             Question(
                 id = 13,
-                title = "¿Cómo se crea una lista de solo lectura en Kotlin?",
-                options = listOf("arrayListOf()", "mutableListOf()", "listOf()", "newList()"),
-                correctIndex = 2
+                title = "Modificador para inicializar variables no nulas después de su declaración:",
+                options = listOf("lazy", "lateinit", "init", "after"),
+                correctIndex = 1
             ),
             Question(
                 id = 14,
-                title = "¿Dónde se define el constructor primario de una clase en Kotlin?",
-                options = listOf("Dentro del cuerpo de la clase", "En el método init", "En la cabecera de la clase", "En un archivo aparte"),
-                correctIndex = 2
+                title = "Capa que centraliza el acceso a datos para el ViewModel:",
+                options = listOf("ViewBinding", "Repository", "Activity", "Companion"),
+                correctIndex = 1
             ),
             Question(
                 id = 15,
-                title = "¿Qué permite la palabra clave 'lateinit'?",
-                options = listOf("Inicializar variables val", "Diferir la inicialización de propiedades no nulas", "Crear variables globales", "Optimizar el recolector de basura"),
+                title = "Se usa para crear miembros estáticos dentro de una clase en Kotlin:",
+                options = listOf("Static Object", "Companion Object", "Global Object", "Singleton"),
                 correctIndex = 1
             )
         )
